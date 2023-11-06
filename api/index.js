@@ -4,6 +4,7 @@ const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const User = require("./models/User.js");
 const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 
 require('dotenv').config();
 
@@ -17,6 +18,7 @@ app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true,
 }));
+app.use(cookieParser());
 
 
 mongoose.connect(process.env.MONGO_URL)
@@ -67,7 +69,22 @@ app.post('/login', async (req, res) => {
         }
     }
     else {
-        res.json('not found');
+        res.json('login failed');
+    }
+});
+
+
+app.get('/profile', (req, res) =>{
+    const {token} = req.cookies;
+    if(token){
+        jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+            if(err) throw err;
+            const {name, email, _id} = await User.findById(userData.id);
+            res.json({name, email, _id});
+        });
+    }
+    else{
+        res.json("token not found");
     }
 })
 

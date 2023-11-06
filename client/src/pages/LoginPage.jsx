@@ -9,25 +9,23 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const [redirect, setRedirect] = useState(false);
 
-    const {setUser} = useContext(UserContext);
+    const { setUser } = useContext(UserContext);
 
-    async function handleLoginSubmit(e){
+    async function handleLoginSubmit(e) {
         e.preventDefault();
-        try{
-            const userInfo = await axios.post('/login', {email, password});
-            console.log("hii");
-            setUser(userInfo);
-            // console.log(user);
+        try {
+            const {data} = await axios.post('/login', { email, password });
+            setUser(data);
             console.log("login successful");
             setRedirect(true);
         }
-        catch(err){
+        catch (err) {
             console.log("user not found " + err);
         }
     }
 
 
-    if(redirect){
+    if (redirect) {
         return <Navigate to={'/'} />
     }
 
@@ -35,7 +33,7 @@ export default function LoginPage() {
         <div className="mt-4 grow flex items-center justify-around">
             <div className="-mt-40">
                 <h1 className="text-4xl text-center mb-4">Login</h1>
-                <form className="max-w-md mx-auto" onSubmit={   handleLoginSubmit}>
+                <form className="max-w-md mx-auto" onSubmit={handleLoginSubmit}>
                     <input type="email" placeholder="your@email.com"
                         value={email}
                         onChange={e => setEmail(e.target.value)}
