@@ -11,11 +11,17 @@ export default function RegisterPage() {
 
     function registerUser(e){
         e.preventDefault();
-        axios.post('/register',{
-            name,
-            email,
-            password,
-        });
+        try{
+            axios.post('/register',{
+                name,
+                email,
+                password,
+            });
+            console.log("successful register");
+        }
+        catch(err){
+            console.log(err);
+        }
     }
 
 
