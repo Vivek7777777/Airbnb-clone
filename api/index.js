@@ -84,8 +84,13 @@ app.get('/profile', (req, res) =>{
         });
     }
     else{
-        res.json("token not found");
+        res.json(null);
     }
+});
+
+
+app.post('/logout', async(req, res) =>{
+    res.cookie('token', '').json(true);
 })
 
 
