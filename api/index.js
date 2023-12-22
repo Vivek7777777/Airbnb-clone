@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const User = require("./models/User.js");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
+const imageDownloader = require("image-downloader");
 
 require('dotenv').config();
 
@@ -18,6 +19,7 @@ app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true,
 }));
+app.use('/uploads', express.static(__dirname + '/uploads'))
 app.use(cookieParser());
 
 
@@ -91,6 +93,19 @@ app.get('/profile', (req, res) =>{
 
 app.post('/logout', async(req, res) =>{
     res.cookie('token', '').json(true);
+})
+
+
+app.post('/upload-by-link', async (req, res) => {
+    const {link} = req.body;
+    // console.log(link);
+    const newName = 'photo' + Date.now() + '.jpg';
+
+    await imageDownloader.image({
+        url: link,
+        dest: __dirname + '/uploads/' + newName
+    });
+    res.json(newName);
 })
 
 
