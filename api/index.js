@@ -6,6 +6,9 @@ const User = require("./models/User.js");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const imageDownloader = require("image-downloader");
+const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
 
 require('dotenv').config();
 
@@ -23,7 +26,11 @@ app.use('/uploads', express.static(__dirname + '/uploads'))
 app.use(cookieParser());
 
 
-mongoose.connect(process.env.MONGO_URL)
+mongoose.connect(process.env.MONGO_URL).then(() => {
+    console.log('Connected to MongoDB');
+  }).catch(err => {
+    console.log("not connected to mongodb");
+  })
 
 app.get("/test", (req, res) => {
     res.json("test");
@@ -98,7 +105,6 @@ app.post('/logout', async(req, res) =>{
 
 app.post('/upload-by-link', async (req, res) => {
     const {link} = req.body;
-    // console.log(link);
     const newName = 'photo' + Date.now() + '.jpg';
 
     await imageDownloader.image({
@@ -108,6 +114,21 @@ app.post('/upload-by-link', async (req, res) => {
     res.json(newName);
 })
 
+const photosMiddleware = multer({dest: 'uploads/'});
+app.post('/upload', photosMiddleware.array('photos', 100),async (req, res) => {
+    const uploadedFiles = [];
+    for (let i = 0; i < req.files.length; i++) {
+        const {path, originalname} = req.files[i];
+        const parts = originalname.split('.');
+        const ext = parts[parts.length - 1];
+        const newPath = path + '.' + ext;
+        fs.renameSync(path, newPath);
+        // console.log(newPath);
+        uploadedFiles.push(newPath.replace('uploads\\',''))
+        
+    }
+    res.json(uploadedFiles);
+});
 
 
 app.listen(4000, () => {
